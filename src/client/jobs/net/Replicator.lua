@@ -21,69 +21,82 @@
            Example:
            
            Replicator:SendToServer("SERVER_MESSAGE", "Hello, world!")
+        
+        <any> ::FetchFromServer(eventKey: string, ...: any)
+        -> Queues up and fires the replication function with the specified arguments, then returns the result.
+           Example:
+           
+           local result = Replicator:FetchFromServer("SERVER_FUNCTION", "Hello, world!")
+           print("I received a result from the server!", result)
 --]]
 
 --= Root =--
-local Replicator    = { Priority = 1 }
+local Replicator = { Priority = 1 }
 
 --= Roblox Services =--
-local rep_svc       = game:GetService('ReplicatedStorage')
+local rep_svc = game:GetService("ReplicatedStorage")
 
 --= Object References =--
 local main_event
+local main_function
 
 --= Constants =--
-local EVENT_UUID    = game.JobId
-local MESSAGES      = {
-    NO_LISTENER     = 'Failed to handle replicated event %q from the server - no event listener registered!';
+local GAME_UUID = game.JobId
+local MESSAGES = {
+	NO_LISTENER = "Failed to handle replicated event %q from the server - no event listener registered!",
 }
 
 --= Variables =--
-local listeners     = { }
+local listeners = {}
 
 --= Internal Functions =--
 local function format(template: string, ...): string
-    return '[ReplicatorClient] ' .. MESSAGES[template]:format(...)
+	return "[ReplicatorClient] " .. MESSAGES[template]:format(...)
 end
 
 --= Job API =--
 function Replicator:Listen(key: string, callback: (...any) -> ())
-    local listener = listeners[key]
-    
-    if listener then
-        table.insert(listener, callback)
-    else
-        listeners[key] = { callback }
-    end
+	local listener = listeners[key]
+
+	if listener then
+		table.insert(listener, callback)
+	else
+		listeners[key] = { callback }
+	end
 end
 
 function Replicator:SendToServer(key: string, ...: any)
-    main_event:FireServer(key, ...)
+	main_event:FireServer(key, ...)
+end
+
+function Replicator:FetchFromServer(key: string, ...: any)
+	return main_function:InvokeServer(key, ...)
 end
 
 --= Job Initializers =--
 function Replicator:Run()
-    if EVENT_UUID == '' or self.FLAGS.IS_STUDIO then
-        EVENT_UUID = 'REPLICATOR_STUDIO'
-    end
-    
-    main_event = rep_svc:WaitForChild(EVENT_UUID, 5)
-    
-    if main_event then
-        main_event.OnClientEvent:Connect(function(key: string, ...: any)
-            local listener = listeners[key]
-            
-            if listener then
-                for _, callback in pairs(listener) do
-                    callback(...)
-                end
-            else
-                warn(format('NO_LISTENER', key))
-            end
-        end)
-    else
-        error()
-    end
+	if GAME_UUID == "" or self.FLAGS.IS_STUDIO then
+		GAME_UUID = "REPLICATOR_STUDIO"
+	end
+
+	main_event = rep_svc:WaitForChild("EVENT" .. GAME_UUID, 120)
+	main_function = rep_svc:WaitForChild("FUNCTION" .. GAME_UUID, 120)
+
+	if main_event then
+		main_event.OnClientEvent:Connect(function(key: string, ...: any)
+			local listener = listeners[key]
+
+			if listener then
+				for _, callback in pairs(listener) do
+					callback(...)
+				end
+			else
+				warn(format("NO_LISTENER", key))
+			end
+		end)
+	else
+		error()
+	end
 end
 
 --= Return Job =--
