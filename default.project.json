@@ -1,0 +1,75 @@
+{
+  "name": "Infinity 6 Alpha",
+  "tree": {
+    "$className": "DataModel",
+    
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+      "$ignoreUnknownInstances": true,
+      "$path": "src/first"
+    },
+    
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      
+      "InfinityShared": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "$path": "src/shared",
+        "packages": {
+          "$ignoreUnknownInstances": true,
+          "$path": "Packages"
+        }
+      },
+      
+      "InfinityExecutor": {
+        "$path": "src/_executor"
+      },
+      
+      "Infinity": {
+        "$path": "src/_loader/"
+      }
+    },
+    
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      
+      "InfinityServer": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "$path": "src/server",
+        "packages": {
+          "$ignoreUnknownInstances": true,
+          "$path": "ServerPackages"
+        }
+      }
+    },
+    
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts",
+        "$ignoreUnknownInstances": true,
+        "InfinityCharacter": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true,
+          "$path": "src/character"
+        }
+      },
+      
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$ignoreUnknownInstances": true,
+        "InfinityClient": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true,
+          "$path": "src/client"
+        }
+      }
+    }
+  }
+}
